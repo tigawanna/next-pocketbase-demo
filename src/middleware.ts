@@ -44,17 +44,33 @@ export async function middleware(request: NextRequest) {
   if (!pb.authStore.model && !request.nextUrl.pathname.startsWith("/auth")) {
     const redirect_to = new URL("/auth", request.url);
     const next_url = request.headers.get("next-url") as string
-    redirect_to.search = new URLSearchParams({
-      next: request.nextUrl.pathname,
-    }).toString();
-    // console.log("login required redirecting to auth age : next ==", redirect_to,);
+    if (request.nextUrl.pathname){
+      redirect_to.search = new URLSearchParams({
+        next: request.nextUrl.pathname,
+      }).toString();
+    }else{
+      redirect_to.search = new URLSearchParams({
+        next:'/',
+      }).toString();
+    }
+
+
   return NextResponse.redirect(redirect_to);
   }
+
+
   if (pb.authStore.model && request.nextUrl.pathname.startsWith("/auth")) {
     const next_url = request.headers.get("next-url") as string
-    const redirect_to = new URL(next_url,request.url);
-    // console.log("alredy loggedn in ,next url", redirect_to.toString());
+    // console.log("next url  == ",request.nextUrl)
+    // console.log("next url  == ",request.nextUrl)
+    if(next_url){
+      const redirect_to = new URL(next_url, request.url);
+      // console.log("alredy loggedn in ,next url", redirect_to.toString());
+      return NextResponse.redirect(redirect_to);
+    }
+    const redirect_to = new URL(next_url,`/`);
     return NextResponse.redirect(redirect_to);
+
   }
 
   return response;

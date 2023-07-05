@@ -14,6 +14,7 @@ return (
 className=" hover:bg-slate-700 "
 onClick={() => { 
     logoutUser()
+    router.refresh()
      
 }} >
     Logout

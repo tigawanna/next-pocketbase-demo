@@ -10,25 +10,25 @@ export function TestServerCookie({cookie}: TestClientCookieProps) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center gap-3">
         <div className="text-6xl font-bold">Server</div>
+        <div className="text-5xl text-red-500">{pb_email}</div>
         <textarea
           value={cookie}
           className="text-sm  w-[90%] border rounded h-[200px] p-3"
           readOnly
         />
 
-        <div className="text-5xl text-red-500">{pb_email}</div>
       </div>
     );
   }
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-3">
       <div className="text-6xl font-bold">Server</div>
+      <div className="text-5xl">{pb_email}</div>
       <textarea
         value={cookie}
         className="text-sm  w-[90%] border rounded h-[200px] p-3"
         readOnly
       />
-      <div className="text-5xl">{pb_email}</div>
     </div>
   );
 }

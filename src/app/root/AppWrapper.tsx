@@ -3,7 +3,7 @@
 import { usePbAuthListener } from "@/state/hooks/usePbAuthListener";
 import Link from "next/link";
 import React from "react";
-import { Logout } from "./Logout";
+import { Logout } from "../auth/components/Logout";
 interface AppWrapperProps {
   children: React.ReactNode;
 }

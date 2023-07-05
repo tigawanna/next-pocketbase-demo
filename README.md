@@ -248,3 +248,12 @@ return (
 
 ```
 With no hydration errors
+
+
+# helpful references
+- [complete code](https://github.com/tigawanna/next-pocketbase-demo)
+- [bigger project example](https://github.com/tigawanna/pocketbook)
+-[PocketBase `AuthStore`](https://github.com/pocketbase/js-sdk#authstore)
+- [`Nextjs` server actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions)
+- [`Nextjs` server components data fetching](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching)
+
