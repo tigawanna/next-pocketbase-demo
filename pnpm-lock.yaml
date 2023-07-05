@@ -23,9 +23,15 @@ dependencies:
   eslint-config-next:
     specifier: 13.4.8
     version: 13.4.8(eslint@8.44.0)(typescript@5.1.6)
+  js-cookie:
+    specifier: ^3.0.5
+    version: 3.0.5
   next:
     specifier: 13.4.8
     version: 13.4.8(react-dom@18.2.0)(react@18.2.0)
+  pocketbase:
+    specifier: ^0.15.2
+    version: 0.15.2
   postcss:
     specifier: 8.4.24
     version: 8.4.24
@@ -1657,6 +1663,11 @@ packages:
     hasBin: true
     dev: false
 
+  /js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
+    dev: false
+
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
     dev: false
@@ -2051,6 +2062,10 @@ packages:
   /pirates@4.0.6:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /pocketbase@0.15.2:
+    resolution: {integrity: sha512-dGSwO2j3XqtFMANNNEVh/moRw0ItOraKC1p3J+I0y/tPEfgleCAUptMWhqHrFNS+jM5r21eSS1U48N9/OmHFzA==}
     dev: false
 
   /postcss-import@15.1.0(postcss@8.4.24):
