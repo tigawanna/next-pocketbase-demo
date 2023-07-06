@@ -5,6 +5,8 @@ interface TestClientCookieProps {
 }
 
 export function TestClientCookie({}:TestClientCookieProps){
+
+
     const cookie = document.cookie
     // console.log("documanet cookie  == ",document.cookie)
     // console.log("decoded cookie === ",decodeURIComponent(document.cookie))

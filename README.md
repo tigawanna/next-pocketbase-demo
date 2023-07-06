@@ -51,25 +51,25 @@ export async function loginUser({ pb,user, password }: ILoginUser) {
 
 add a `middleware.ts` in our root directory , in my case am using `src/app` so it'll be in the `src` directory
 
+
 ```ts 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import PocketBase from "pocketbase";
 import { pb_url, pb_user_collection } from "./state/consts";
-import { encodeNextPBCookie } from "./state/utils/encodeCookies";
+import { getNextjsCookie } from "./state/utils/server-cookie";
 
 export async function middleware(request: NextRequest) {
-  
-  const cookie = request.cookies.get("pb_auth");
   const response = NextResponse.next();
-  const encoded_cookie_string =encodeNextPBCookie(cookie)
+  const request_cookie = request.cookies.get("pb_auth")
+  // console.log("middlware request cookie  ===",)
 
+  const cookie = await getNextjsCookie(request_cookie)
   const pb = new PocketBase(pb_url);
   if (cookie) {
     try {
-      pb.authStore.loadFromCookie(encoded_cookie_string)
-\   } catch (error) {
-      // console.log("invalid cookie format invalidating cookie");
+      pb.authStore.loadFromCookie(cookie)
+      } catch (error) {
       pb.authStore.clear();
       response.headers.set(
         "set-cookie",
@@ -91,24 +91,32 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-// if the user is not logged in and not in the /auth page
   if (!pb.authStore.model && !request.nextUrl.pathname.startsWith("/auth")) {
     const redirect_to = new URL("/auth", request.url);
-    const next_url = request.headers.get("next-url") as string
-    redirect_to.search = new URLSearchParams({
-      next: request.nextUrl.pathname,
-    }).toString();
-    // console.log("login required redirecting to auth age : next ==", redirect_to,);
+  if (request.nextUrl.pathname){
+      redirect_to.search = new URLSearchParams({
+        next: request.nextUrl.pathname,
+      }).toString();
+    }else{
+      redirect_to.search = new URLSearchParams({
+        next:'/',
+      }).toString();
+    }
+
+
   return NextResponse.redirect(redirect_to);
   }
 
 
-//   if the user is loggedin and they visit /auth
   if (pb.authStore.model && request.nextUrl.pathname.startsWith("/auth")) {
     const next_url = request.headers.get("next-url") as string
-    const redirect_to = new URL(next_url,request.url);
-    // console.log("alredy loggedn in ,next url", redirect_to.toString());
+  if(next_url){
+      const redirect_to = new URL(next_url, request.url);
+      return NextResponse.redirect(redirect_to);
+    }
+    const redirect_to = new URL(`/`,request.url);
     return NextResponse.redirect(redirect_to);
+
   }
 
   return response;
@@ -119,6 +127,7 @@ export const config = {
 };
 
 ```
+
 
 
 This now allows you to redirect any unauthenticated users from `admin` to `/auth`
@@ -247,8 +256,88 @@ return (
 }
 
 ```
-With no hydration errors
 
+
+
+And now we can SetUp 2 components to text this out 
+
+- Client Side User Fetch
+```tsx
+"use client"
+import { pb } from "@/state/pb/client_config";
+
+interface WillCauseHydrationIssuesProps {
+
+}
+/**
+ * Renders a component that may cause hydration issues.
+ *
+ * @param {WillCauseHydrationIssuesProps} props - The props object for the component.
+ * @return {JSX.Element} The rendered component.
+ */
+export function WillCauseHydrationIssues({}:WillCauseHydrationIssuesProps){
+const user  = pb.authStore.model 
+return (
+ <div className='w-full h-full flex items-center justify-center'>
+    {user && <h1 className="text-8xl font-bol text-red-400">User Logged in </h1>}
+ </div>
+);
+}
+
+```
+
+` Server side user fetch and pass user as prop to the client component
+```tsx
+"use client";
+import { PBUserRecord } from "@/state/user/types";
+import { Record, Admin } from "pocketbase";
+
+interface WontCauseHydrationIssuesProps {
+  user: Record | Admin | null;
+}
+
+/**
+ * Renders a component that won't cause hydration issues.
+ *
+ * @param {WontCauseHydrationIssuesProps} user - The user object.
+ * @return {JSX.Element} - The rendered component.
+ */
+
+export function WontCauseHydrationIssues({ user }: WontCauseHydrationIssuesProps) {
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      {user && <h1 className="text-2xl font-bold">User Logged In</h1>}
+    </div>
+  );
+}
+
+```
+
+Do note that for something with no user interactions like this , rendering it as a server component will serve you better , but components like this usually need user interactions like dark mode toggle or user logout on profile pic click ,NextJS server actions can also help out here eliminating need for client components but I'd usually place those items in toolbars and sidebars which work best as server components
+
+also a few pointers on the cookies you get out of 
+
+```ts
+import { cookies } from "next/headers";
+``` 
+might vary depending on whether it was saved with `document.cookie or cookie().set()` ,the PocketBase client will correctly parse the   `document.cookie` string but you might  have to  encode the object from `cookie().get()` into a valid cookie string before passing it into 
+```ts
+  pb.authStore.loadFromCookie(cookie || ""); 
+```
+ looking at the `  pb.authStore` implementation and seems like it might work if you pass in the correct shape of cookie object but for convenience i made a [parsing function](https://github.com/tigawanna/next-pocketbase-demo/blob/9bcdfe43ad7dc4445e8240e3a2a841138010de9d/src/state/utils/encodeCookies.ts) that turns it the `cookie().get("pb_auth")` object that looks like
+
+```json
+{
+  name: 'pb_auth',
+  value: '{"token":"eyJhbGciOiJIJleHAiOjE2ODk4MjQ3ODIsImlkIjoiN2R4dzcyNDEyaDBlazdkIiwidHlwZSI6ImF1dG.MPqkEy9dd6UMXT46SXVvjss2OP-_J9agR7E5mdjS_kk","model":{"access_token":"","avatar":"","bio":"","collectionId":"5sckr8a13tos","collectionName":"developers","created":"2023-06-27 20:40:23.037Z","email":"picopicpo@email.com","emailVisibility":true,"github_avatar":"","github_login":"","id":"7dxw72412h0ek7d","updated":"2023-07-05 05:30:08.835Z","username":"picopico","verified":false,"expand":{}}}'
+}
+```
+into a string that looks something like this 
+```ts
+const cookie= "%7B%22token%22%3A%22JhbiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9zcyNDEyaDBlazdkIiwidHlwZSI6ImF1dGhSZWNvcmQifQ...."
+```
+
+ 
 
 # helpful references
 - [complete code](https://github.com/tigawanna/next-pocketbase-demo)

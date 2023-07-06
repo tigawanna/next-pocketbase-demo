@@ -13,7 +13,7 @@ export default async function AdminPage() {
       <div className="h-full flex flex-col items-center justify-center gap-4">
         <h1 className="text-8xl font-bold">Welcome to</h1>
         <h1 className="text-5xl font-bold text-yellow-700 ">ADMIN Page</h1>
-        <TestClientCookie />
+        {/* <TestClientCookie /> */}
         <TestServerCookie cookie={parsed_cookie}/>
       </div>
     </main>

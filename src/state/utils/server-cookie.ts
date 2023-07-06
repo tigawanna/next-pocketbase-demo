@@ -4,6 +4,7 @@ import { middleware } from "@/middleware";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 export async function getNextjsCookie(request_cookie?: RequestCookie) {
+    // console.log("middleware request cookie  === ",request_cookie)
     try {
         if (request_cookie) {
             const cookie = encodeNextPBCookie(request_cookie)
