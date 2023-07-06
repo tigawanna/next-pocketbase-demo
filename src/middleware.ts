@@ -2,24 +2,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import PocketBase from "pocketbase";
 import { pb_url, pb_user_collection } from "./state/consts";
-import { encodeNextPBCookie } from "./state/utils/encodeCookies";
+import { getNextjsCookie } from "./state/utils/server-cookie";
 
 export async function middleware(request: NextRequest) {
-  
-  const cookie = request.cookies.get("pb_auth");
   const response = NextResponse.next();
-  const encoded_cookie_string =encodeNextPBCookie(cookie)
+  const request_cookie = request.cookies.get("pb_auth")
+  // console.log("middlware request cookie  ===",)
 
+  const cookie = await getNextjsCookie(request_cookie)
   const pb = new PocketBase(pb_url);
   if (cookie) {
     try {
-      pb.authStore.loadFromCookie(encoded_cookie_string)
-      // const pb_model = JSON.parse(cookie);
-      // console.log("JOSN parsed  == pb model :", pb_model);
-      // pb.authStore.save(pb_model.token, pb_model.model);
-
-    } catch (error) {
-      // console.log("invalid cookie format invalidating cookie");
+      pb.authStore.loadFromCookie(cookie)
+      } catch (error) {
       pb.authStore.clear();
       response.headers.set(
         "set-cookie",
@@ -43,8 +38,7 @@ export async function middleware(request: NextRequest) {
 
   if (!pb.authStore.model && !request.nextUrl.pathname.startsWith("/auth")) {
     const redirect_to = new URL("/auth", request.url);
-    const next_url = request.headers.get("next-url") as string
-    if (request.nextUrl.pathname){
+  if (request.nextUrl.pathname){
       redirect_to.search = new URLSearchParams({
         next: request.nextUrl.pathname,
       }).toString();
@@ -61,14 +55,11 @@ export async function middleware(request: NextRequest) {
 
   if (pb.authStore.model && request.nextUrl.pathname.startsWith("/auth")) {
     const next_url = request.headers.get("next-url") as string
-    // console.log("next url  == ",request.nextUrl)
-    // console.log("next url  == ",request.nextUrl)
-    if(next_url){
+  if(next_url){
       const redirect_to = new URL(next_url, request.url);
-      // console.log("alredy loggedn in ,next url", redirect_to.toString());
       return NextResponse.redirect(redirect_to);
     }
-    const redirect_to = new URL(next_url,`/`);
+    const redirect_to = new URL(`/`,request.url);
     return NextResponse.redirect(redirect_to);
 
   }
