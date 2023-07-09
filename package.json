@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "5.0.0-alpha.71",
+    "@tanstack/react-query-devtools": "5.0.0-alpha.72",
     "@types/node": "20.3.3",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
@@ -24,5 +26,8 @@
     "react-dom": "18.2.0",
     "tailwindcss": "3.3.2",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "@tanstack/eslint-plugin-query": "^4.29.9"
   }
 }
